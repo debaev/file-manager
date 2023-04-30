@@ -1,14 +1,16 @@
-import { createReadStream, createWriteStream, statSync } from "fs";
+import { createReadStream, createWriteStream } from "fs";
+import { access, constants } from "fs/promises";
 import { resolve } from "path";
 
 export default async function cp(currentDir, srcPath, destPath) {
-    const isFileExist = statSync(resolve(currentDir, srcPath)).isFile();
-    const isDirectoryExist = statSync(resolve(currentDir, destPath)).isDirectory();
+    try {
+        await access(resolve(currentDir, srcPath), constants.R_OK | constants.W_OK);
+        await access(resolve(currentDir, destPath), constants.R_OK | constants.W_OK);
+        const fileToCopy = createReadStream(resolve(currentDir, srcPath));
+        const destFilePath = createWriteStream(resolve(currentDir, destPath, srcPath));
 
-    if (!isFileExist || !isDirectoryExist) throw Error;
-
-    const fileToCopy = createReadStream(resolve(currentDir, srcPath));
-    const destFilePath = createWriteStream(resolve(currentDir, destPath, srcPath));
-
-    fileToCopy.pipe(destFilePath);
+        fileToCopy.pipe(destFilePath);
+    } catch (error) {
+        throw Error;
+    }
 };

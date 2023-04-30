@@ -1,6 +1,6 @@
 import { resolve } from 'path';
-import { openSync } from 'fs';
+import { writeFile } from 'fs/promises';
 
 export default async function add(currentDir, srcPath) {
-	openSync(resolve(currentDir, srcPath), 'w');
+	writeFile(resolve(currentDir, srcPath), '');
 };
